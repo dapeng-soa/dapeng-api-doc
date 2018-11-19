@@ -1,14 +1,10 @@
-### dapeng 文档站点
+Api document site for services built on dapeng-soa
 
-#### 基于zookeeper
-#### 可在线浏览，测试
-
-## 文档站点请求超时时间配置
-> 基于环境变量的方式
-
-### soa.service.timeout
-
-```$xslt
-private static final String OPEN_API_TIMEOUT = "soa.service.timeout";
-
+Run with docker:
 ```
+docker run --name dapengApiDoc -d -e soa_zookeeper_host=192.168.10.131:2181 -p 8083:8080 dapengsoa/dapeng-api-doc
+```
+
+Then open http://localhost:8083 with your brower.
+
+
