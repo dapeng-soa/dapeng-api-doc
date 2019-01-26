@@ -382,8 +382,6 @@ function applyTest(serviceName, version, methodName) {
     $.post(url, {
         parameter: stringParameter
     }, function (result) {
-
-        // $("#json-result").html(getFormatedJsonHTML(eval('(' + result + ')')));
         $("#json-result").html(getFormatedJsonHTML(result));
     }, 'json');
 }
