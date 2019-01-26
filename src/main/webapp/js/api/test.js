@@ -377,13 +377,7 @@ function applyTest(serviceName, version, methodName) {
     $("#json-request").html(getFormatedJsonHTML(jsonParameter));
 
     var stringParameter = JSON.stringify(jsonParameter);
-    var url = window.basePath + "/test";
-    url = url + "/" + serviceName + "/" + version + "/" + methodName + ".htm";
-    $.post(url, {
-        parameter: stringParameter
-    }, function (result) {
-        $("#json-result").html(getFormatedJsonHTML(result));
-    }, 'json');
+    handlerTest(serviceName, version, methodName, stringParameter);
 }
 
 /**
@@ -396,11 +390,13 @@ function applyTest(serviceName, version, methodName) {
 function applyTestForTemplate(serviceName, version, methodName, params) {
 
     $("#json-request").html(getFormatedJsonHTML(JSON.parse(params)));
-    var url = window.basePath + "/test.htm";
+    handlerTest(serviceName, version, methodName, params);
+}
+
+function handlerTest(serviceName, version, methodName, params) {
+    var url = window.basePath + "/test";
+    url = url + "/" + serviceName + "/" + version + "/" + methodName + ".htm";
     $.post(url, {
-        serviceName: serviceName,
-        version: version,
-        methodName: methodName,
         parameter: params
     }, function (result) {
         $("#json-result").html(getFormatedJsonHTML(result));
@@ -559,13 +555,7 @@ function applyTestForJsonStr(serviceName, version, methodName) {
         return;
     }
     $("#json-request").html(getFormatedJsonHTML(jsonObj));
-    var url = window.basePath + "/test";
-    url = url + "/" + serviceName + "/" + version + "/" + methodName + ".htm";
-    $.post(url, {
-        parameter: JSON.stringify(jsonObj)
-    }, function (result) {
-        $("#json-result").html(getFormatedJsonHTML(result));
-    }, 'json');
+    handlerTest(serviceName, version, methodName, JSON.stringify(jsonObj));
 }
 
 function getJsonParameter() {
