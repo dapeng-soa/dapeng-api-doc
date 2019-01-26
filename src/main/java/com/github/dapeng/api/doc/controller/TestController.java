@@ -41,16 +41,15 @@ public class TestController {
     }
 
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, value = "/{serviceName}/{version}/{methodName}")
     @ResponseBody
-    public String test(HttpServletRequest req) {
+    public String test(HttpServletRequest req,
+                       @PathVariable String serviceName,
+                       @PathVariable String version,
+                       @PathVariable String methodName) {
 
         String jsonParameter = req.getParameter("parameter");
-        String serviceName = req.getParameter("serviceName");
-        String versionName = req.getParameter("version");
-        String methodName = req.getParameter("methodName");
-
-        return PostUtil.post(serviceName, versionName, methodName, jsonParameter, req);
+        return PostUtil.post(serviceName, version, methodName, jsonParameter, req);
     }
 
     /**
