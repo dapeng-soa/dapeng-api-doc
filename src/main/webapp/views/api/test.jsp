@@ -96,7 +96,8 @@
                     }
                 }
 
-                $('input.datetimepicker').datetimepicker();
+                $.datetimepicker.setLocale('ch');
+                $('input.datetimepicker').datetimepicker({lang:'ch',format:"Y-m-d H:i"});
             });
 
             // 获取请求模版
