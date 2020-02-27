@@ -654,6 +654,13 @@ function getJsonObject(li) {
 
         var v = $(li).find('input')[0].value.trim();
 
+        // 如果是date类型，则将时间戳替代所选时间
+        if ($($(li).find('input')[0]).hasClass("datetimepicker")) {
+            // var date = $($(li).find('input')[0]).datetimepicker('getValue');
+            var date = new Date(v + ":00:000");
+            return date.getTime()
+        }
+
         if ($(li).find('input')[0].type == 'number') {
 
             if (v == '') {
@@ -741,7 +748,8 @@ function getJsonSample(dataType, service) {
             return {};
 
         case 'DATE':
-            return "2016/04/13 16:00";
+            // Date在传输时使用long
+            return "1582732800000";
         case 'BIGDECIMAL':
             return "1234567.123456789123456";
         default :
