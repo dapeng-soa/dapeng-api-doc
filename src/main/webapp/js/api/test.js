@@ -397,6 +397,7 @@ function applyTestForTemplate(serviceName, version, methodName, params) {
 }
 
 function handlerTest(serviceName, version, methodName, params) {
+    cookieInject();
     var url = window.basePath + "/test";
     url = url + "/" + serviceName + "/" + version + "/" + methodName + ".htm";
     $.post(url, {
@@ -406,357 +407,372 @@ function handlerTest(serviceName, version, methodName, params) {
     }, 'json');
 }
 
-/**
- * 使用模版填充测试表单
- */
-function useTemplate2From(params) {
-    console.log("填充测试模版");
-    console.log(params);
+    /**
+     * 使用模版填充测试表单
+     */
+    function useTemplate2From(params) {
+        console.log("填充测试模版");
+        console.log(params);
 
-}
+    }
 
-/**
- * 获取历史请求模版
- */
-function getRequestTemplate(serviceName, version, methodName) {
+    /**
+     * 获取历史请求模版
+     */
+    function getRequestTemplate(serviceName, version, methodName) {
 
-    var url = window.basePath + "/test/template/query";
-    $.get(url, {
-        serviceName: serviceName,
-        version: version,
-        method: methodName
-    }, function (result) {
-        var size = result.length;
-        // 测试
-        $("#json-result").html();
-        var tabTitleDoms = "";
-        var tabContentDoms = "";
-        for (var i = 0; i < size; i++) {
-            tabTitleDoms += "<li role='presentation' class='dynamic-tab-title'>" +
-                "<a href='#template" + i + "'" +
-                " id='template" + i + "-tab' role='tab' data-toggle='tab'" +
-                "      aria-controls='template" + i + "'" + "  onclick=$('#apply-template-button-group').hide() onfocus=$('#removeTemplate" + i + "').show() onblur=$('#removeTemplate" + i + "').hide() >" +
-                "<span class='glyphicon glyphicon-send'></span> " + result[i].label +
-                " <span title='删除此模版' href='javascript:void(0)' style='display: none;cursor: pointer' class='remove-template-but' id='removeTemplate" + i + "' onclick=deleteTemplate('" + result[i].id + "','" + serviceName + "','" + version + "','" + methodName + "') ><span class='glyphicon glyphicon-remove'></span></>" +
-                "</a>" +
-                "</li>";
+        var url = window.basePath + "/test/template/query";
+        $.get(url, {
+            serviceName: serviceName,
+            version: version,
+            method: methodName
+        }, function (result) {
+            var size = result.length;
+            // 测试
+            $("#json-result").html();
+            var tabTitleDoms = "";
+            var tabContentDoms = "";
+            for (var i = 0; i < size; i++) {
+                tabTitleDoms += "<li role='presentation' class='dynamic-tab-title'>" +
+                    "<a href='#template" + i + "'" +
+                    " id='template" + i + "-tab' role='tab' data-toggle='tab'" +
+                    "      aria-controls='template" + i + "'" + "  onclick=$('#apply-template-button-group').hide() onfocus=$('#removeTemplate" + i + "').show() onblur=$('#removeTemplate" + i + "').hide() >" +
+                    "<span class='glyphicon glyphicon-send'></span> " + result[i].label +
+                    " <span title='删除此模版' href='javascript:void(0)' style='display: none;cursor: pointer' class='remove-template-but' id='removeTemplate" + i + "' onclick=deleteTemplate('" + result[i].id + "','" + serviceName + "','" + version + "','" + methodName + "') ><span class='glyphicon glyphicon-remove'></span></>" +
+                    "</a>" +
+                    "</li>";
 
-            tabContentDoms += "<div role='tabpane1' class='tab-pane fade dynamic-tab-pane' id='template" + i + "'" + " aria-labelledby='template" + i + "Data-tab'>" +
-                "<p>请求模版: " + result[i].label + "</p>" +
-                "<p>更新时间: " + new Date(result[i].updateDate).toLocaleString() + "</p>" +
-                "<P><button class='btn btn-success' type='button' onclick=applyTestForTemplate('" + serviceName + "','" + version + "','" + methodName + "','" + result[i].template + "')>提交测试</button>" +
-                /*"<button class='btn btn-default' type='button' onclick=useTemplate2From('"+result[i].template+"')>回填表单</button></P>"+*/
-                "<div id='template" + i + "Data'>" + getFormatedJsonHTML(JSON.parse(result[i].template)) + "</div>" +
-                "</div>";
+                tabContentDoms += "<div role='tabpane1' class='tab-pane fade dynamic-tab-pane' id='template" + i + "'" + " aria-labelledby='template" + i + "Data-tab'>" +
+                    "<p>请求模版: " + result[i].label + "</p>" +
+                    "<p>更新时间: " + new Date(result[i].updateDate).toLocaleString() + "</p>" +
+                    "<P><button class='btn btn-success' type='button' onclick=applyTestForTemplate('" + serviceName + "','" + version + "','" + methodName + "','" + result[i].template + "')>提交测试</button>" +
+                    /*"<button class='btn btn-default' type='button' onclick=useTemplate2From('"+result[i].template+"')>回填表单</button></P>"+*/
+                    "<div id='template" + i + "Data'>" + getFormatedJsonHTML(JSON.parse(result[i].template)) + "</div>" +
+                    "</div>";
+            }
+            // 清除历史虚拟dom
+            $(".dynamic-tab-title").remove();
+            $(".dynamic-tab-pane").remove();
+            // tab标题
+            $("#myTabs li").last().after(tabTitleDoms);
+            // tab内容
+            $("#myTabContent .tab-pane").last().after(tabContentDoms);
+        }, 'json');
+    }
+
+    /**
+     * 打开模版描述文本
+     */
+    function openLabelInput() {
+        inputError = false;
+        getJsonParameter();
+        if (inputError) {
+            alert("请求为空,提交请求后再保存新模版！");
+            return;
         }
-        // 清除历史虚拟dom
-        $(".dynamic-tab-title").remove();
-        $(".dynamic-tab-pane").remove();
-        // tab标题
-        $("#myTabs li").last().after(tabTitleDoms);
-        // tab内容
-        $("#myTabContent .tab-pane").last().after(tabContentDoms);
-    }, 'json');
-}
-
-/**
- * 打开模版描述文本
- */
-function openLabelInput() {
-    inputError = false;
-    getJsonParameter();
-    if (inputError) {
-        alert("请求为空,提交请求后再保存新模版！");
-        return;
-    }
-    $("#applyTemplateBut").hide();
-    $("#label-submit-box").show();
-}
-
-/**
- * 保存请求模版
- */
-function applyTemplate(serviceName, version, methodName) {
-    inputError = false;
-    var jsonParameter = getJsonParameter();
-    if (inputError) {
-        alert("请求为空,提交请求后再保存新模版！");
-        return;
+        $("#applyTemplateBut").hide();
+        $("#label-submit-box").show();
     }
 
-    var labelContext = $("#template-label-text").val();
-    if (labelContext.trim() === "") {
-        alert("模版标题为空，请填写完整！");
-        return;
-    }
+    /**
+     * 保存请求模版
+     */
+    function applyTemplate(serviceName, version, methodName) {
+        inputError = false;
+        var jsonParameter = getJsonParameter();
+        if (inputError) {
+            alert("请求为空,提交请求后再保存新模版！");
+            return;
+        }
 
-    var l = labelContext.length;
-    var blen = 0;
-    for (i = 0; i < l; i++) {
-        if ((labelContext.charCodeAt(i) & 0xff00) != 0) {
+        var labelContext = $("#template-label-text").val();
+        if (labelContext.trim() === "") {
+            alert("模版标题为空，请填写完整！");
+            return;
+        }
+
+        var l = labelContext.length;
+        var blen = 0;
+        for (i = 0; i < l; i++) {
+            if ((labelContext.charCodeAt(i) & 0xff00) != 0) {
+                blen++;
+            }
             blen++;
         }
-        blen++;
-    }
-    if (blen > 10) {
-        alert("模版标题过长，请检查");
-        return;
-    }
-
-    $("#label-submit-box").hide();
-    $("#applyTemplateBut").show();
-    var stringParameter = JSON.stringify(jsonParameter);
-    var url = window.basePath + "/test/template/save";
-    $.post(url, {
-        serviceName: serviceName,
-        version: version,
-        method: methodName,
-        template: stringParameter,
-        label: labelContext
-    }, function (result) {
-        $("#template-label-text").val("")
-    }, 'json');
-    setTimeout(function () {
-        getRequestTemplate(serviceName, version, methodName);
-    }, 100);
-
-}
-
-/**
- * 删除模版
- * @param id
- * @param serviceName
- * @param version
- * @param methodName
- */
-function deleteTemplate(id, serviceName, version, methodName) {
-    var url = window.basePath + "/test/template/delete/" + id;
-    $.post(url, {}, function (result) {
-    }, 'json');
-    setTimeout(function () {
-        getRequestTemplate(serviceName, version, methodName);
-        // 将第一个tab设置为活动
-        $("#requestData-tab").click();
-        $("#requestData").addClass("active in")
-    }, 100);
-
-}
-
-/**
- * 提交自定义json测试
- * @param serviceName
- * @param version
- * @param methodName
- */
-function applyTestForJsonStr(serviceName, version, methodName) {
-    var params = $("#pasteJsonBox").val();
-    var jsonObj = {};
-    try {
-        jsonObj = JSON.parse(params)
-    } catch (e) {
-        alert("json格式异常请检查");
-        return;
-    }
-    $("#json-request").html(getFormatedJsonHTML(jsonObj));
-    handlerTest(serviceName, version, methodName, JSON.stringify(jsonObj));
-}
-
-function getJsonParameter() {
-
-    var parameter = {};
-
-    $('#tree').children('li').each(function () {
-
-        var tN = $(this).find('span.parameterName').children('abbr').html();
-        if (tN.indexOf('(') > 0) {
-            tN = tN.substring(0, tN.indexOf("("));
+        if (blen > 10) {
+            alert("模版标题过长，请检查");
+            return;
         }
-        //过滤非必填且为选填的
-        if ($(this).children().children().children("input[type='checkbox']").length > 0) {
 
-            var checkbox = $(this).children().children().children("input[type='checkbox']")[0];
-            if (checkbox.checked) {
-                var tJSON = getJsonObject($(this));
-                parameter[tN] = tJSON;
-            }
-        } else {
-            var tJSON = getJsonObject($(this));
-            parameter[tN] = tJSON;
+        $("#label-submit-box").hide();
+        $("#applyTemplateBut").show();
+        var stringParameter = JSON.stringify(jsonParameter);
+        var url = window.basePath + "/test/template/save";
+        $.post(url, {
+            serviceName: serviceName,
+            version: version,
+            method: methodName,
+            template: stringParameter,
+            label: labelContext
+        }, function (result) {
+            $("#template-label-text").val("")
+        }, 'json');
+        setTimeout(function () {
+            getRequestTemplate(serviceName, version, methodName);
+        }, 100);
+
+    }
+
+    /**
+     * 删除模版
+     * @param id
+     * @param serviceName
+     * @param version
+     * @param methodName
+     */
+    function deleteTemplate(id, serviceName, version, methodName) {
+        var url = window.basePath + "/test/template/delete/" + id;
+        $.post(url, {}, function (result) {
+        }, 'json');
+        setTimeout(function () {
+            getRequestTemplate(serviceName, version, methodName);
+            // 将第一个tab设置为活动
+            $("#requestData-tab").click();
+            $("#requestData").addClass("active in")
+        }, 100);
+
+    }
+
+    /**
+     * 提交自定义json测试
+     * @param serviceName
+     * @param version
+     * @param methodName
+     */
+    function applyTestForJsonStr(serviceName, version, methodName) {
+        var params = $("#pasteJsonBox").val();
+        var jsonObj = {};
+        try {
+            jsonObj = JSON.parse(params)
+        } catch (e) {
+            alert("json格式异常请检查");
+            return;
         }
-    });
-    return {body: parameter};
-}
+        $("#json-request").html(getFormatedJsonHTML(jsonObj));
+        handlerTest(serviceName, version, methodName, JSON.stringify(jsonObj));
+    }
 
-function getJsonObject(li) {
+    function getJsonParameter() {
 
-    var name = $(li).find('span.parameterName').children('abbr').html();
+        var parameter = {};
 
-    if (name.indexOf('(Map)') > 0) {
-
-        var map = {};
-        var ul = $(li).children('ul');
-        $(ul).children('li').each(function () {
-
-            var ul2 = $(this).children('ul');
-            var li_key = $(ul2).children('li')[0];
-            var li_val = $(ul2).children('li')[1];
-
-            var tN = $(li_key).find('input').val();
-            map[tN] = getJsonObject(li_val);
-
-        });
-        return map;
-
-    } else if (name.indexOf('(List)') > 0) {
-
-        var list = [];
-        var ul = $(li).children('ul');
-        $(ul).children('li').each(function () {
-            list.push(getJsonObject($(this)));
-        });
-        return list;
-
-    } else if (name.indexOf('(Set)') > 0) {
-
-        var aSet = [];
-        var ul = $(li).children('ul');
-        $(ul).children('li').each(function () {
-            aSet.push(getJsonObject($(this)));
-        });
-
-        return aSet;
-
-    } else if (name.indexOf('(') > 0) {
-
-        var struct = {};
-        var ul = $(li).children('ul');
-        $(ul).children('li').each(function () {
+        $('#tree').children('li').each(function () {
 
             var tN = $(this).find('span.parameterName').children('abbr').html();
             if (tN.indexOf('(') > 0) {
                 tN = tN.substring(0, tN.indexOf("("));
             }
+            //过滤非必填且为选填的
             if ($(this).children().children().children("input[type='checkbox']").length > 0) {
 
                 var checkbox = $(this).children().children().children("input[type='checkbox']")[0];
                 if (checkbox.checked) {
+                    var tJSON = getJsonObject($(this));
+                    parameter[tN] = tJSON;
+                }
+            } else {
+                var tJSON = getJsonObject($(this));
+                parameter[tN] = tJSON;
+            }
+        });
+        return {body: parameter};
+    }
+
+    function getJsonObject(li) {
+
+        var name = $(li).find('span.parameterName').children('abbr').html();
+
+        if (name.indexOf('(Map)') > 0) {
+
+            var map = {};
+            var ul = $(li).children('ul');
+            $(ul).children('li').each(function () {
+
+                var ul2 = $(this).children('ul');
+                var li_key = $(ul2).children('li')[0];
+                var li_val = $(ul2).children('li')[1];
+
+                var tN = $(li_key).find('input').val();
+                map[tN] = getJsonObject(li_val);
+
+            });
+            return map;
+
+        } else if (name.indexOf('(List)') > 0) {
+
+            var list = [];
+            var ul = $(li).children('ul');
+            $(ul).children('li').each(function () {
+                list.push(getJsonObject($(this)));
+            });
+            return list;
+
+        } else if (name.indexOf('(Set)') > 0) {
+
+            var aSet = [];
+            var ul = $(li).children('ul');
+            $(ul).children('li').each(function () {
+                aSet.push(getJsonObject($(this)));
+            });
+
+            return aSet;
+
+        } else if (name.indexOf('(') > 0) {
+
+            var struct = {};
+            var ul = $(li).children('ul');
+            $(ul).children('li').each(function () {
+
+                var tN = $(this).find('span.parameterName').children('abbr').html();
+                if (tN.indexOf('(') > 0) {
+                    tN = tN.substring(0, tN.indexOf("("));
+                }
+                if ($(this).children().children().children("input[type='checkbox']").length > 0) {
+
+                    var checkbox = $(this).children().children().children("input[type='checkbox']")[0];
+                    if (checkbox.checked) {
+                        struct[tN] = getJsonObject($(this));
+                    }
+                } else {
                     struct[tN] = getJsonObject($(this));
                 }
-            } else {
-                struct[tN] = getJsonObject($(this));
-            }
 
-        });
-        return struct;
+            });
+            return struct;
 
-    } else if ($(li).find('select').length > 0) {
+        } else if ($(li).find('select').length > 0) {
 
-        return $(li).find('select').val();
+            return $(li).find('select').val();
 
-    } else {
-
-        var v = $(li).find('input')[0].value.trim();
-
-        // 如果是date类型，则将时间戳替代所选时间
-        if ($($(li).find('input')[0]).hasClass("datetimepicker")) {
-            // var date = $($(li).find('input')[0]).datetimepicker('getValue');
-            var date = new Date(v + ":00:000");
-            return date.getTime()
-        }
-
-        if ($(li).find('input')[0].type == 'number') {
-
-            if (v == '') {
-                $(li).find('span.warninfo').css("display", "");
-                inputError = true;
-            } else {
-                $(li).find('span.warninfo').css("display", "none");
-                return parseInt(v);
-            }
         } else {
 
-            if (v == '') {
-                $(li).find('span.warninfo').html('输入内容不能为空');
-                $(li).find('span.warninfo').css("display", "");
-                inputError = true;
-            } else {
-                $(li).find('span.warninfo').css("display", "none");
+            var v = $(li).find('input')[0].value.trim();
+
+            // 如果是date类型，则将时间戳替代所选时间
+            if ($($(li).find('input')[0]).hasClass("datetimepicker")) {
+                // var date = $($(li).find('input')[0]).datetimepicker('getValue');
+                var date = new Date(v + ":00:000");
+                return date.getTime()
             }
+
+            if ($(li).find('input')[0].type == 'number') {
+
+                if (v == '') {
+                    $(li).find('span.warninfo').css("display", "");
+                    inputError = true;
+                } else {
+                    $(li).find('span.warninfo').css("display", "none");
+                    return parseInt(v);
+                }
+            } else {
+
+                if (v == '') {
+                    $(li).find('span.warninfo').html('输入内容不能为空');
+                    $(li).find('span.warninfo').css("display", "");
+                    inputError = true;
+                } else {
+                    $(li).find('span.warninfo').css("display", "none");
+                }
+            }
+
+            return $(li).find('input').val();
+        }
+    }
+
+    var inputError = false;
+
+    function getJsonSample(dataType, service) {
+
+        switch (dataType.kind) {
+            case 'STRING':
+                return "sampleDataString";
+            case 'INTEGER':
+                return Math.round(Math.random() * 1000);
+            case 'DOUBLE':
+                return Math.random() * 100;
+            case 'BOOLEAN':
+                return Math.round(Math.random()) == 1 ? "true" : "false";
+            case 'BYTE':
+                return parseInt(Math.random() * 256 - 128);
+            case 'BINARY':
+                return "546869732049732041205465737420427974652041727261792E";
+            case 'SHORT':
+                return Math.round(Math.random() * 100);
+            case 'LONG':
+                return Math.round(Math.random() * 1000);
+            case 'ENUM':
+                for (var i = 0; i < service.enumDefinitions.length; i++) {
+
+                    var tenum = service.enumDefinitions[i];
+                    if ((tenum.namespace + "." + tenum.name) == dataType.qualifiedName) {
+                        var size = tenum.enumItems.length;
+                        var index = parseInt(Math.random() * size);
+                        return tenum.enumItems[index].label;
+                    }
+                }
+                return "";
+            case 'MAP':
+                var map = {};
+                var key = getJsonSample(dataType.keyType, service);
+                var value = getJsonSample(dataType.valueType, service);
+                map[key] = value;
+                return map;
+            case 'LIST':
+                var list = [];
+                list.push(getJsonSample(dataType.valueType, service));
+                list.push(getJsonSample(dataType.valueType, service));
+                return list;
+            case 'SET':
+                var list = [];
+                list.push(getJsonSample(dataType.valueType, service));
+                list.push(getJsonSample(dataType.valueType, service));
+                return list;
+            case 'STRUCT':
+                var p = {};
+                for (var i = 0; i < service.structDefinitions.length; i++) {
+                    var struct = service.structDefinitions[i];
+                    if ((struct.namespace + '.' + struct.name) == dataType.qualifiedName) {
+                        for (var index = 0; index < struct.fields.length; index++) {
+                            var field = struct.fields[index];
+                            p[field.name] = getJsonSample(field.dataType, service);
+                        }
+                        return p;
+                    }
+                }
+                return {};
+
+            case 'DATE':
+                // Date在传输时使用long
+                return 1582732800000;
+            case 'BIGDECIMAL':
+                return "1234567.123456789123456";
+            default :
+                return "";
         }
 
-        return $(li).find('input').val();
-    }
-}
-
-var inputError = false;
-
-function getJsonSample(dataType, service) {
-
-    switch (dataType.kind) {
-        case 'STRING':
-            return "sampleDataString";
-        case 'INTEGER':
-            return Math.round(Math.random() * 1000);
-        case 'DOUBLE':
-            return Math.random() * 100;
-        case 'BOOLEAN':
-            return Math.round(Math.random()) == 1 ? "true" : "false";
-        case 'BYTE':
-            return parseInt(Math.random() * 256 - 128);
-        case 'BINARY':
-            return "546869732049732041205465737420427974652041727261792E";
-        case 'SHORT':
-            return Math.round(Math.random() * 100);
-        case 'LONG':
-            return Math.round(Math.random() * 1000);
-        case 'ENUM':
-            for (var i = 0; i < service.enumDefinitions.length; i++) {
-
-                var tenum = service.enumDefinitions[i];
-                if ((tenum.namespace + "." + tenum.name) == dataType.qualifiedName) {
-                    var size = tenum.enumItems.length;
-                    var index = parseInt(Math.random() * size);
-                    return tenum.enumItems[index].label;
-                }
-            }
-            return "";
-        case 'MAP':
-            var map = {};
-            var key = getJsonSample(dataType.keyType, service);
-            var value = getJsonSample(dataType.valueType, service);
-            map[key] = value;
-            return map;
-        case 'LIST':
-            var list = [];
-            list.push(getJsonSample(dataType.valueType, service));
-            list.push(getJsonSample(dataType.valueType, service));
-            return list;
-        case 'SET':
-            var list = [];
-            list.push(getJsonSample(dataType.valueType, service));
-            list.push(getJsonSample(dataType.valueType, service));
-            return list;
-        case 'STRUCT':
-            var p = {};
-            for (var i = 0; i < service.structDefinitions.length; i++) {
-                var struct = service.structDefinitions[i];
-                if ((struct.namespace + '.' + struct.name) == dataType.qualifiedName) {
-                    for (var index = 0; index < struct.fields.length; index++) {
-                        var field = struct.fields[index];
-                        p[field.name] = getJsonSample(field.dataType, service);
-                    }
-                    return p;
-                }
-            }
-            return {};
-
-        case 'DATE':
-            // Date在传输时使用long
-            return 1582732800000;
-        case 'BIGDECIMAL':
-            return "1234567.123456789123456";
-        default :
-            return "";
     }
 
-}
+
+    function cookieInject() {
+        var cookies = $.cookie();
+        for(var cookie in cookies) {
+            $.removeCookie(cookie,{path:'/'});
+        }
+        var $chooseItems = $("input[name='checkItem']:checked");
+        $chooseItems.each(function () {
+            var $tr = $(this).parent().parent();
+            var key = $tr.find("input").eq(1).val();
+            var value = $tr.find("input").eq(2).val();
+            $.cookie("cookie_"+key,value,{path:'/'});
+        });
+    }

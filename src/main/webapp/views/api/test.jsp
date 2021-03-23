@@ -106,6 +106,8 @@
                 elem: '#selected-date',
                 type: 'datetime'
             });
+
+            initTableCheckBox();
         });
 
         // 获取时间戳
@@ -138,6 +140,56 @@
                 alert("时间转换异常");
                 return
             }
+        }
+
+        function initTableCheckBox(){
+            var $thr = $('table thead tr');
+            var $tb = $('table tbody');
+            var $checkAllTh = $('<th><input type="checkbox" id="checkAll" name="checkAll" /></th>');
+            $thr.prepend($checkAllTh);
+            var $checkAll = $thr.find('input');
+            $checkAll.click(function(event){
+                $tbr.find('input').prop('checked',$(this).prop('checked'));
+                if ($(this).prop('checked')) {
+                    $tbr.find('input').parent().parent().addClass('warning');
+                } else{
+                    $tbr.find('input').parent().parent().removeClass('warning');
+                }
+                event.stopPropagation();
+            });
+            $checkAllTh.click(function(){
+                $(this).find('input').click();
+            });
+
+            $("#addRow").click(function(){
+                var $insertRow=$('<tr>' +
+                    '<td><input type="checkbox" name="checkItem" /></td>' +
+                    '<td><input class="form-control" type="text"></td>\n' +
+                    '<td><input class="form-control" type="text"></td>' +
+                    '</tr>')
+                $tb.append($insertRow);
+                $tbr = $('table tbody tr');
+            });
+            $("#deleteRow").click(function(){
+                var $deleteRow=$("input[name='checkItem']:checked");
+                $deleteRow.each(function(){
+                    $(this).parent().parent().remove();
+                });
+            });
+            var $tbr = $('table tbody tr');
+            var $checkItemTd = $('<td><input type="checkbox" name="checkItem" /></td>');
+            $tbr.prepend($checkItemTd);
+            $tbr.find('input').click(function(event){
+                $(this).parent().parent().toggleClass('warning');
+                /*如果已经被选中行的行数等于表格的数据行数，将全选框设为选中状态，否则设为未选中状态*/
+                $checkAll.prop('checked',$tbr.find('input:checked').length == $tbr.length ? true : false);
+                event.stopPropagation();
+            });
+            /*点击每一行时也触发该行的选中操作*/
+            $tbr.click(function(){
+                $(this).find('input').click();
+            });
+
         }
     </script>
 </head>
@@ -237,6 +289,35 @@
                     <input type="text" class="form-control" id="convert-datetime">
                 </div>
             </div>
+            <hr>
+            <h4>请求头</h4>
+
+            <div class="panel-body">
+                <div class="list-op" id="list_op">
+                    <button type="button" class="btn btn-info" id="addRow">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+                    </button>
+                    <button type="button" class="btn btn-info" id="deleteRow">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+                    </button>
+                </div>
+            </div>
+            <table id="headerTable" class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th align="center">key</th>
+                    <th align="center">value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input class="form-control" type="text"></td>
+                    <td><input class="form-control" type="text"></td>
+                </tr>
+                </tbody>
+            </table>
+            <br>
+
             <hr>
             <h4>请求参数</h4>
 

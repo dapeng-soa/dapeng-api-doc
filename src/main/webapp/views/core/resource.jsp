@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="${basePath}/css/model/scroll-top.css" type="text/css"/>
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 <script src="${basePath}/js/jquery/1.11.3/jquery.min.js"></script>
+<script src="${basePath}/js/jquery/1.11.3/jquery.cookie.min.js"></script>
 <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
 <script src="${basePath}/js/bootstrap/3.3.5/bootstrap.min.js"></script>
 <!-- marked -->

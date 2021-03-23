@@ -3,6 +3,8 @@ package com.github.dapeng.api.doc.controller;
 import com.github.dapeng.api.doc.dto.TestTemplate;
 import com.github.dapeng.api.doc.dto.TestTemplateVo;
 import com.github.dapeng.api.doc.repository.TestTemplateRepository;
+import com.github.dapeng.core.InvocationContext;
+import com.github.dapeng.core.InvocationContextImpl;
 import com.github.dapeng.openapi.utils.PostUtil;
 import com.github.dapeng.api.doc.util.DataConvertUtil;
 import org.slf4j.Logger;
@@ -14,11 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 测试Controller
@@ -49,6 +50,19 @@ public class TestController {
                        @PathVariable String methodName) {
 
         String jsonParameter = req.getParameter("parameter");
+        Cookie[] cookie = req.getCookies();
+        if(cookie!=null){
+            InvocationContext invocationContext = InvocationContextImpl.Factory.currentInstance();
+            for(Cookie c:cookie){
+                if(c.getName().startsWith("cookie_")){
+                    if(c.getName().equals("cookie_operatorId")){
+                        invocationContext.operatorId(Long.parseLong(c.getValue()));
+                    }else{
+                        invocationContext.setCookie(c.getName(),c.getValue());
+                    }
+                }
+            }
+        }
         return PostUtil.post(serviceName, version, methodName, jsonParameter, req);
     }
 
